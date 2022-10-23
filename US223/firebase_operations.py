@@ -40,7 +40,7 @@ def upload_file(local_path : str, cloud_path : str="/"):
     to the firebase cloud storage.
 
     Args:
-        local_path (str): Local path of the file.
+        local_path (str): Local path in unix format of the file.
         cloud_path (str, optional): Destination path in firebase cloud storage. If
         default path is passed, then it uploads to a path the same as local path. 
         Defaults to "/".
@@ -79,6 +79,13 @@ def download_file(cloud_path: str, local_path: str = "./") -> None:
     print(f"Downloaded object {cloud_path} to file {local_path}")
 
 def move_file(old_cloud_path: str, new_cloud_path: str) -> None:
+    """Moves an object in firebase storage to a new path in the cloud. Functions the 
+    same as UNIX's "mv" command, there is, it can also be used to rename an object.
+
+    Args:
+        old_cloud_path (str): Old path of object in firebase storage.
+        new_cloud_path (str): New path of object in firebase storage.
+    """
     bucket = storage.bucket()
     blob = bucket.blob(old_cloud_path)
     new_blob = bucket.rename_blob(blob, new_cloud_path)
@@ -86,6 +93,12 @@ def move_file(old_cloud_path: str, new_cloud_path: str) -> None:
     print(f"Blob {blob.name} has been renamed to {new_blob.name}")
 
 def delete_file(cloud_path: str) -> None:
+    """Deletes an object in firebase storage.
+
+    Args:
+        cloud_path (str): Path of object (blob) in firebase storage that you want
+        to delete.
+    """
     bucket = storage.bucket()
     blob = bucket.blob(cloud_path)
     blob.delete()
@@ -93,10 +106,10 @@ def delete_file(cloud_path: str) -> None:
     print(f"Blob {blob.name} has been deleted.")
 
 def list_files() -> list:
-    """Lists all files in firebase storage
+    """Lists all files in firebase storage.
 
     Returns:
-        list: List of all files in firebase storage
+        list: List of all files in firebase storage.
     """
     bucket = storage.bucket()
     blobs = bucket.list_blobs()
