@@ -10,25 +10,25 @@ as well as other common purpose functions like check_local_path and list_files.
 from firebase_admin import credentials, initialize_app, storage
 from os.path import exists
 
-CREDENTIALS_PATH = "friendly-chat-test-alfa2tr-firebase-adminsdk-tu82o-7dec33160d.json"
+CREDENTIALS_PATH = "alfa2tr-firebase-adminsdk-wy7cj-499495b929.json"
 
 def initialize(credentials_path: str = CREDENTIALS_PATH) -> None:
-    """Initialize access to firebase with your credentials.
-    
-    credentials_path: Path to a certificate file, most 
-    likely a .json file, or a dict representing the contents 
-    of a certificate.
+    """Initializes access to firebase with your credentials.
+
+    Args:
+        credentials_path (str, optional): Path to a certificate file, most 
+        likely a .json file, or a dict representing the contents 
+        of a certificate. Defaults to CREDENTIALS_PATH.
     """
     cred = credentials.Certificate(credentials_path)
     initialize_app(cred, {'storageBucket': 'friendly-chat-test-alfa2tr.appspot.com'})
 
 def check_local_path(local_path: str) -> None:
-    """Asserts the existence of a given local file path.
-    
-    local_path: Path to a file which existance needs to be
-    asserted.
+    """Auxiliar function that asserts the existence of a given local file path.
 
-    Note: local_path should be in unix format. 
+    Args:
+        local_path (str): Path in unix format to a file which existance needs 
+        to be asserted.
     """
     try:
         assert exists(local_path)
@@ -36,13 +36,22 @@ def check_local_path(local_path: str) -> None:
         print("%s file doesn't exist" % local_path)
 
 def upload_file(local_path : str, cloud_path : str="/"):
+    """Given there's access to the firebase storage, makes the upload of local file
+    to the firebase cloud storage.
+
+    Args:
+        local_path (str): Local path of the file.
+        cloud_path (str, optional): Destination path in firebase cloud storage. If
+        default path is passed, then it uploads to a path the same as local path. 
+        Defaults to "/".
+    """
     try:
         bucket = storage.bucket()
         if cloud_path == "/":
             if local_path.startswith("."):
                 cloud_path = local_path.lstrip("./")
             else:
-                cloud_path += local_path
+                cloud_path = local_path
         blob = bucket.blob(cloud_path)
         blob.upload_from_filename(local_path)
 
@@ -50,7 +59,17 @@ def upload_file(local_path : str, cloud_path : str="/"):
     except:
         print("Try running initialize()")
 
-def download_file(cloud_path, local_path="./"):
+def download_file(cloud_path: str, local_path: str = "./") -> None:
+    """Given there's access to the firebase storage, downloads a object from the 
+    firebase storage.
+
+    Args:
+        cloud_path (str): Path of object (blob) in firebase storage.
+        local_path (str, optional): Destination path to where files will be
+        downloaded. If folders to path don't exist, they be created. If default 
+        path is passed, then files will follow the same structure as in firebase
+        storage. Defaults to "./".
+    """
     bucket = storage.bucket()
     blob = bucket.blob(cloud_path)
     if local_path == "./":
@@ -59,21 +78,26 @@ def download_file(cloud_path, local_path="./"):
 
     print(f"Downloaded object {cloud_path} to file {local_path}")
 
-def move_file(old_cloud_path, new_cloud_path):
+def move_file(old_cloud_path: str, new_cloud_path: str) -> None:
     bucket = storage.bucket()
     blob = bucket.blob(old_cloud_path)
     new_blob = bucket.rename_blob(blob, new_cloud_path)
 
     print(f"Blob {blob.name} has been renamed to {new_blob.name}")
 
-def delete_file(cloud_path):
+def delete_file(cloud_path: str) -> None:
     bucket = storage.bucket()
     blob = bucket.blob(cloud_path)
     blob.delete()
 
     print(f"Blob {blob.name} has been deleted.")
 
-def list_files():
+def list_files() -> list:
+    """Lists all files in firebase storage
+
+    Returns:
+        list: List of all files in firebase storage
+    """
     bucket = storage.bucket()
     blobs = bucket.list_blobs()
 
