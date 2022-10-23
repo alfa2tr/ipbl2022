@@ -65,10 +65,10 @@ def download_file(cloud_path: str, local_path: str = "./") -> None:
 
     Args:
         cloud_path (str): Path of object (blob) in firebase storage.
-        local_path (str, optional): Destination path to where files will be
-        downloaded. If folders to path don't exist, they be created. If default 
-        path is passed, then files will follow the same structure as in firebase
-        storage. Defaults to "./".
+        local_path (str, optional): Destination path, in unix format, to where 
+        files will be downloaded. If folders to path don't exist, they be created. 
+        If default path is passed, then files will follow the same structure as in 
+        firebase storage. Defaults to "./".
     """
     bucket = storage.bucket()
     blob = bucket.blob(cloud_path)
