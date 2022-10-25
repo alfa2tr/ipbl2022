@@ -6,11 +6,14 @@ script provides a function to make connection with the Firebase cloud storage
 (initialize), functions for CRUD operations, that is in this case, Upload 
 (upload_file), Download (download_file), Move (move_file) and Delete (delete_file),
 as well as other common purpose functions like check_local_path and list_files.
+Note: Funtions were not tested for Windows systems.
 """
 from firebase_admin import credentials, initialize_app, storage
 from os.path import exists
 
-CREDENTIALS_PATH = "alfa2tr-firebase-adminsdk-wy7cj-499495b929.json"
+from more_itertools import bucket
+
+CREDENTIALS_PATH = "US223/alfa2tr-firebase-adminsdk-wy7cj-499495b929.json"
 
 def initialize(credentials_path: str = CREDENTIALS_PATH) -> None:
     """Initializes access to firebase with your credentials.
@@ -21,7 +24,7 @@ def initialize(credentials_path: str = CREDENTIALS_PATH) -> None:
         of a certificate. Defaults to CREDENTIALS_PATH.
     """
     cred = credentials.Certificate(credentials_path)
-    initialize_app(cred, {'storageBucket': 'friendly-chat-test-alfa2tr.appspot.com'})
+    initialize_app(cred, {'storageBucket': 'alfa2tr.appspot.com'})
 
 def check_local_path(local_path: str) -> None:
     """Auxiliar function that asserts the existence of a given local file path.
@@ -56,8 +59,9 @@ def upload_file(local_path : str, cloud_path : str="/"):
         blob.upload_from_filename(local_path)
 
         print(f"File {local_path} has been uploaded as object {cloud_path}")
-    except:
+    except BaseException as err:
         print("Try running initialize()")
+        print(err)
 
 def download_file(cloud_path: str, local_path: str = "./") -> None:
     """Given there's access to the firebase storage, downloads a object from the 
@@ -77,6 +81,13 @@ def download_file(cloud_path: str, local_path: str = "./") -> None:
     blob.download_to_filename(local_path)
 
     print(f"Downloaded object {cloud_path} to file {local_path}")
+
+def copy_file(cloud_source_path: str, cloud_destination_path: str) -> None:
+    bucket = storage.bucket()
+    blob = bucket.blob(cloud_source_path)
+    new_blob = bucket.copy_blob(blob, bucket, cloud_destination_path)
+
+    print(f"Blob {blob.name} has been copy to {new_blob.name}")
 
 def move_file(old_cloud_path: str, new_cloud_path: str) -> None:
     """Moves an object in firebase storage to a new path in the cloud. Functions the 

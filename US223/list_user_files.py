@@ -1,7 +1,15 @@
-from genericpath import isfile
 import os
-import test
 
+def undo_dir_changes(func):
+    def inner(path:str):
+        start_path = os.getcwd()
+        list_of_paths = func(path)
+        os.chdir(start_path)
+
+        return list_of_paths
+    return inner
+
+@undo_dir_changes
 def list_of_local_files(path:str):
     os.chdir(path)
     files = []
@@ -10,21 +18,13 @@ def list_of_local_files(path:str):
             files = files + [path+"/"+file for file in list_of_local_files(dir)]
         if os.path.isfile(dir):
             files.append(path+"/"+dir)
-    os.chdir("..")
+    #os.chdir("..")
     return files
 
+def get_file_name_from_path(path: str) -> str:
+    return path.split("/")[-1]
+
 if __name__ == "__main__":
-    test.initialize()
-
-    list(map(print, test.list_files()))
-
-    # Download
-    # for file in test.list_files():
-    #     test.download_file(file, file)
-
-    #Upload
-    for file in list_of_local_files("./Users"):
-        d_file = file.lstrip(".")
-        test.upload_file(file)
-    
-    # test.list_files()
+    print("Current folder: %s" % os.getcwd().split("/")[-1])
+    list(map(print, list_of_local_files("US223/Users")))
+    print("Current folder: %s" % os.getcwd().split("/")[-1])
